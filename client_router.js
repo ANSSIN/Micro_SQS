@@ -42,6 +42,9 @@ router.route('/student')
 // create a new student (accessed at POST http://localhost:16386/api/student)
 .post(function(req, res) {
 
+var timeStamp = Date.now() / 1000 | 0;
+
+
 
 SQS.sendMessage(req);
 
@@ -84,6 +87,7 @@ router.route('/student/:student_id')
 .get(function(req, res) {
 
 
+  var timeStamp = Date.now() / 1000 | 0;
 
   SQS.sendMessage(req);
 
@@ -101,6 +105,9 @@ router.route('/student/:student_id')
 
 
 .delete(function(req, res) {
+
+
+  var timeStamp = Date.now() / 1000 | 0;
 
 
   SQS.sendMessage(req);
@@ -142,6 +149,7 @@ router.route('/student/:student_id')
 .put(function(req, res) {
   //Logic to update student details here
 
+  var timeStamp = Date.now() / 1000 | 0;
 
   SQS.sendMessage(req);
 
