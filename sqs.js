@@ -19,6 +19,7 @@ exports.queueInitiator = function() {
 }
 
 exports.sendMessage = function(message, callback) {
+
     var params = {
         QueueName: 'RequestProcessor'
     };
@@ -28,6 +29,7 @@ exports.sendMessage = function(message, callback) {
             Q_Url = data.QueueUrl;
             message.forEach(function(eachMessage) {
                 var params = {
+
                     MessageBody: JSON.stringify(eachMessage), //.text,
                     QueueUrl: Q_Url,
                     DelaySeconds: 0
@@ -39,5 +41,43 @@ exports.sendMessage = function(message, callback) {
             });
         }
         callback();
+    });
+}
+
+
+var receiveMessage = exports.receiveMessage = function () { //callback) {
+    var params = {
+        QueueName: 'ResponseQueue'
+    };
+    sqs.getQueueUrl(params, function(err, data) {
+        if (err) console.log(err, err.stack);
+        else {
+            Q_Url = data.QueueUrl;
+            var params = {
+
+                QueueUrl: Q_Url,
+                MaxNumberOfMessages: 10,
+                VisibilityTimeout: 60,
+                WaitTimeSeconds: 10
+            };
+            sqs.receiveMessage(params, function(err, messages) {
+                if (err) console.log(err, err.stack);
+                else {
+                    if (messages.Messages && messages.Messages.length > 0) {
+                        data = messages.Messages;
+                        resultList = [];
+                        var counter = 0;
+                        data.forEach(function(d) {
+                            var obj = JSON.parse(d.Body);
+
+
+                        });
+                    } else {
+                        receiveMessage();
+                        //console.log('CALLING AGAIN');
+                    }
+                }
+            });
+        }
     });
 }
