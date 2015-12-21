@@ -186,23 +186,25 @@ var method = req.method;
 var correlationId = Date.now() / 1000 | 0;
 var responseQueue = "https://sqs.us-east-1.amazonaws.com/306587932798/ResponseQueue";
 correlationId = correlationId + "";
+ssn_var = req.params.ssn;
 
 if(method == 'GET' || method =="PUT" || method =="DELETE"){
-  var message = {
+  request = {ssn:ssn_var};
+  var message1 = {
   Operation : method,
   CorrelationId : correlationId,
   ResponseQueue : responseQueue,
-  Request : req.params.ssn
+  Request : request
   }
 } else{
-  var message = {
+  var message1 = {
   Operation : method,
   CorrelationId : correlationId,
   ResponseQueue : responseQueue,
-  Request : req
+  Request : req.body
   }
 }
-message = JSON.stringify(message);
+message = JSON.stringify(message1);
 SQS.sendMessage(message,function(){
   callback("Message Received");
 });

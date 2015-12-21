@@ -17,6 +17,7 @@ var app = Consumer.create({
   queueUrl: 'https://sqs.us-east-1.amazonaws.com/306587932798/RequestProcessor',
   messageAttributeNames : ['ResponseQueue','CorrelationId','Operation'],
   handleMessage: function (message, done) {
+
     invokeandProcessResponse(message , function(err, result){
       console.log("Inside invoke and response");
     });
@@ -30,23 +31,25 @@ var invokeandProcessResponse = function(req, callback){
   var operation = req.MessageAttributes.Operation.StringValue;
   var instanceToRouteTo = "http://localhost:16386/api/student";
 
-  var request = JSON.parse(req.MessageBody);
+  var body = JSON.parse(req.Body);
   var reqMethod;
   var bodyParameters;
-
+  var ssn = body.ssn;
   reqMethod = operation;
-  
-  var body = request.body;
+
   console.log(body);
+
+  console.log("Correlation ID for Transaction");
+  console.log(CorrelationId);
   if (operation == "GET" || operation == "PUT" || operation == "DELETE")
   {
-    instanceToRouteTo += "/" + body;
+    instanceToRouteTo += "/" + ssn;
   }
   console.log('Sending ' + operation + ' request to ' + instanceToRouteTo);
 
   request(
-    { url : instanceToRouteTo, 
-      method : operation, 
+    { url : instanceToRouteTo,
+      method : operation,
       json : body
     }, function (error, response, body) {
 

@@ -54,6 +54,16 @@ router.get('/', function(req, res) {
 //API endpoint to add student to the students table
 
 
+router.route('/')
+  .get(function(req, res) {
+    res.send({'status': "All systems go!"});
+  })
+  .post(function(req, res) {
+    sd.createTable(function(response) {
+      res.send({message: response});
+    });
+  });
+
 
 //API end point to get student details (accessed at GET http://localhost:16386/api/student/id)
 router.route('/student/:ssn')
@@ -63,7 +73,7 @@ router.route('/student/:ssn')
     var ssn = parseInt(req.params.ssn);
     console.log(ssn);
 
-    sd.getStudentForSsn(ssn, function(data) {
+    sd.getStudentForSsn(ssn, function(err,data) {
 
       if (!err) {
         var result = data.Items[0];

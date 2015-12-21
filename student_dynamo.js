@@ -85,7 +85,7 @@ exports.getStudentForSsn = function(ssn, callback) {
     }
     else {
       console.log("Query Succeeded");
-      callback(data);
+      callback(undefined,data);
     }
   })
 };
