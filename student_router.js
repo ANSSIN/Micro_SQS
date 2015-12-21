@@ -10,35 +10,8 @@ AWS.config.apiVersions = {
 
 
 AWS.config.update({accessKeyId: '', secretAccessKey: '',region: 'us-east-1'});
-//
- var sqs = new AWS.SQS({region:'us-east-1'});
-// var params = {
-//   QueueName: 'ResponseProcessor', /* required */
-// };
-// sqs.createQueue(params, function(err, data) {
-//   if (err) console.log(err, err.stack); // an error occurred
-//   else     console.log("Queue created" + data);           // successful response
-// });
-// var params = {
-//   Name: 'TweetsToShow' /* required */
-// };
-// sns.createTopic(params, function(err, data) {
-//   if (err) console.log(err, err.stack); // an error occurred
-//   else
-//   {
-//     console.log("Topic created " + data.TopicArn);
-//     var subscribeparams = {
-//       Protocol: 'http', /* required */
-//       TopicArn: data.TopicArn, /* required */
-//       Endpoint: 'http://default-environment-cmynnybqp8.elasticbeanstalk.com/receive'
-//     };
-//     sns.subscribe(subscribeparams, function(err, data) {
-//       if (err) console.log(err, err.stack); // an error occurred
-//       else     console.log("Sent subscribe request " + data.SubscriptionArn );           // successful response
-//     });
-//   }          // successful response
-// });
-//
+
+var sqs = new AWS.SQS({region:'us-east-1'});
 
 var app = Consumer.create({
   queueUrl: 'https://sqs.us-east-1.amazonaws.com/306587932798/RequestProcessor',
@@ -56,18 +29,26 @@ var invokeandProcessResponse = function(req, callback){
   var CorrelationId = req.MessageAttributes.CorrelationId.StringValue;
   var operation = req.MessageAttributes.Operation.StringValue;
   var instanceToRouteTo = "http://localhost:16386/api/student";
+
+  var request = JSON.parse(req.MessageBody);
   var reqMethod;
   var bodyParameters;
+
   reqMethod = operation;
-  bodyParameters = req.Body;
-  var body = JSON.parse(bodyParameters);
+  
+  var body = request.body;
   console.log(body);
   if (operation == "GET" || operation == "PUT" || operation == "DELETE")
   {
-    instanceToRouteTo += "/" + body.Id;
+    instanceToRouteTo += "/" + body;
   }
   console.log('Sending ' + operation + ' request to ' + instanceToRouteTo);
-  request({ url : instanceToRouteTo, method : operation, json : body}, function (error, response, body) {
+
+  request(
+    { url : instanceToRouteTo, 
+      method : operation, 
+      json : body
+    }, function (error, response, body) {
 
     var messageparams = {
       MessageAttributes:{
@@ -83,7 +64,7 @@ var invokeandProcessResponse = function(req, callback){
     };
     sqs.sendMessage(messageparams, function(err, data) {
       if (err) console.log(err, err.stack); // an error occurred
-      else     console.log("Message sent " + data);           // successful response
+      else     console.log("Message sent to SQS Response Queue" + data);           // successful response
     });
     callback(null, response.body);
   });

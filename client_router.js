@@ -26,7 +26,7 @@ var router = express.Router();              // get an instance of the express Ro
 // middle-ware to use for all requests
 router.use(function(req, res, next) {
   // do logging
-  console.log('Something is happening.');
+  console.log('Someone is doing something in the client.');
   next(); // make sure we go to the next routes and don't stop here
 });
 
@@ -34,7 +34,7 @@ router.use(function(req, res, next) {
 // test route to make sure everything is working (accessed at GET http://localhost:16386/api)
 router.get('/', function(req, res) {
   // Logic to show student here
-  res.json({ message: 'Welcome to our student Instance 1 api!!' });
+  res.json({ message: 'Welcome to our client instance api!!' });
 });
 
 
@@ -44,7 +44,6 @@ router.route('/student')
 
 // create a new student (accessed at POST http://localhost:16386/api/student)
 .post(function(req, res) {
-
 
   invokeandProcessResponse(req,handleResult);
 
@@ -79,7 +78,7 @@ router.route('/student')
 
 
 //API end point to get student details (accessed at GET http://localhost:16386/api/student/id)
-router.route('/student/:student_id')
+router.route('/student/:ssn')
 
 // get the student with that id (accessed at GET http://localhost:16386/api/student/:student_id)
 .get(function(req, res) {
@@ -192,14 +191,15 @@ if(method == 'GET' || method =="PUT" || method =="DELETE"){
   var message = {
   Operation : method,
   CorrelationId : correlationId,
-  ResponseQueue : responseQueue
+  ResponseQueue : responseQueue,
+  Request : req.params.ssn
   }
 } else{
   var message = {
   Operation : method,
   CorrelationId : correlationId,
   ResponseQueue : responseQueue,
-  Body : req.body
+  Request : req
   }
 }
 message = JSON.stringify(message);
