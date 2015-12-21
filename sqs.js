@@ -19,7 +19,7 @@ exports.queueInitiator = function() {
 }
 
 exports.sendMessage = function(message, callback) {
-
+    var message = JSON.parse(message);
     var params = {
         QueueName: 'RequestProcessor'
     };
@@ -27,18 +27,30 @@ exports.sendMessage = function(message, callback) {
         if (err) console.log(err, err.stack);
         else {
             Q_Url = data.QueueUrl;
-            message.forEach(function(eachMessage) {
                 var params = {
 
-                    MessageBody: JSON.stringify(eachMessage), //.text,
+                    MessageBody: JSON.stringify(message), //.text,
                     QueueUrl: Q_Url,
-                    DelaySeconds: 0
+                    DelaySeconds: 0,
+                    MessageAttributes:{
+                      ResponseQueue:{
+                                      DataType: 'String', /* required */
+                                      StringValue: message.ResponseQueue
+                                    },
+                      CorrelationId:{
+                                        DataType: 'String', /* required */
+                                        StringValue: message.CorrelationId
+                                    },
+                      Operation:{
+                                   DataType: 'String', /* required */
+                                   StringValue: message.Operation
+                                }    /* anotherKey: ... */
+                   }
                 };
                 sqs.sendMessage(params, function(err, data) {
                     if (err) console.log(err, err.stack);
                     else console.log('Message pushed to Queue from SQS file');
                 });
-            });
         }
         callback();
     });
@@ -64,6 +76,7 @@ var receiveMessage = exports.receiveMessage = function () { //callback) {
                 if (err) console.log(err, err.stack);
                 else {
                     if (messages.Messages && messages.Messages.length > 0) {
+                        console.log(messages);
                         data = messages.Messages;
                         resultList = [];
                         var counter = 0;

@@ -1,10 +1,13 @@
 var bodyParser = require('body-parser');
+var express    = require('express');        // call express
+var app        = express();                 // define our app using express
 var request = require('request');
 var http = require('http');
 var SQS = require('./sqs.js');
 
 //Initialize the queue
 SQS.queueInitiator();
+SQS.receiveMessage();
 
 
 // configure app to use bodyParser()
@@ -42,13 +45,8 @@ router.route('/student')
 // create a new student (accessed at POST http://localhost:16386/api/student)
 .post(function(req, res) {
 
-var timeStamp = Date.now() / 1000 | 0;
 
-
-
-SQS.sendMessage(req);
-
-
+  invokeandProcessResponse(req,handleResult);
 
   function handleResult(response)
   {
@@ -87,9 +85,7 @@ router.route('/student/:student_id')
 .get(function(req, res) {
 
 
-  var timeStamp = Date.now() / 1000 | 0;
-
-  SQS.sendMessage(req);
+  invokeandProcessResponse(req,handleResult);
 
   function handleResult(response, err)
   {
@@ -107,10 +103,7 @@ router.route('/student/:student_id')
 .delete(function(req, res) {
 
 
-  var timeStamp = Date.now() / 1000 | 0;
-
-
-  SQS.sendMessage(req);
+  invokeandProcessResponse(req,handleResult);
 
   function handleResult(response)
   {
@@ -149,9 +142,7 @@ router.route('/student/:student_id')
 .put(function(req, res) {
   //Logic to update student details here
 
-  var timeStamp = Date.now() / 1000 | 0;
-
-  SQS.sendMessage(req);
+  invokeandProcessResponse(req,handleResult);
 
   function handleResult(response)
   {
@@ -190,3 +181,41 @@ router.route('/student/:student_id')
 
 
 });
+
+var invokeandProcessResponse = function(req, callback){
+var method = req.method;
+var correlationId = Date.now() / 1000 | 0;
+var responseQueue = "https://sqs.us-east-1.amazonaws.com/306587932798/ResponseQueue";
+correlationId = correlationId + "";
+
+if(method == 'GET' || method =="PUT" || method =="DELETE"){
+  var message = {
+  Operation : method,
+  CorrelationId : correlationId,
+  ResponseQueue : responseQueue
+  }
+} else{
+  var message = {
+  Operation : method,
+  CorrelationId : correlationId,
+  ResponseQueue : responseQueue,
+  Body : req.body
+  }
+}
+message = JSON.stringify(message);
+SQS.sendMessage(message,function(){
+  callback("Message Received");
+});
+
+}
+
+
+
+// REGISTER OUR ROUTES -------------------------------
+// all of our routes will be prefixed with /api
+app.use('/api', router);
+
+// START THE SERVER
+// =============================================================================
+app.listen(port);
+console.log('Magic happens on port ' + port);
