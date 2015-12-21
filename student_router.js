@@ -9,7 +9,7 @@ AWS.config.apiVersions = {
 };
 
 
-AWS.config.update({accessKeyId: '', secretAccessKey: ''});
+AWS.config.update({accessKeyId: '', secretAccessKey: '',region: 'us-east-1'});
 //
  var sqs = new AWS.SQS({region:'us-east-1'});
 // var params = {
@@ -41,7 +41,7 @@ AWS.config.update({accessKeyId: '', secretAccessKey: ''});
 //
 
 var app = Consumer.create({
-  queueUrl: 'https://sqs.us-east-1.amazonaws.com/828055001145/RequestProcessor',
+  queueUrl: 'https://sqs.us-east-1.amazonaws.com/306587932798/RequestProcessor',
   messageAttributeNames : ['ResponseQueue','CorrelationId','Operation'],
   handleMessage: function (message, done) {
     invokeandProcessResponse(message , function(err, result){
@@ -68,9 +68,17 @@ var invokeandProcessResponse = function(req, callback){
   }
   console.log('Sending ' + operation + ' request to ' + instanceToRouteTo);
   request({ url : instanceToRouteTo, method : operation, json : body}, function (error, response, body) {
+
     var messageparams = {
+      MessageAttributes:{
+
+        CorrelationId:{
+                          DataType: 'String', /* required */
+                          StringValue: CorrelationId
+                      }
+     },
       MessageBody: JSON.stringify(response.body), /* required */
-      QueueUrl: 'https://sqs.us-east-1.amazonaws.com/828055001145/'+ ResponseQueue , /* required */
+      QueueUrl: ResponseQueue , /* required */
       DelaySeconds: 0
     };
     sqs.sendMessage(messageparams, function(err, data) {

@@ -68,6 +68,7 @@ var receiveMessage = exports.receiveMessage = function () { //callback) {
             var params = {
 
                 QueueUrl: Q_Url,
+                MessageAttributeNames : ['CorrelationId'],
                 MaxNumberOfMessages: 10,
                 VisibilityTimeout: 60,
                 WaitTimeSeconds: 10
@@ -77,13 +78,34 @@ var receiveMessage = exports.receiveMessage = function () { //callback) {
                 else {
                     if (messages.Messages && messages.Messages.length > 0) {
                         console.log(messages);
+                        //console.log(messages.Messages.MessageAttributes);
                         data = messages.Messages;
+                        //attributes = data.MessageAttributes;
+                        //console.log(attributes);
                         resultList = [];
+
                         var counter = 0;
                         data.forEach(function(d) {
-                            var obj = JSON.parse(d.Body);
+                            var attributes = d.MessageAttributes;
+                            var body = d.Body;
+                            console.log(attributes);
+                            console.log(body);
 
-
+                            // var params = {
+                            //     QueueUrl: Q_Url,
+                            //     ReceiptHandle: d.ReceiptHandle
+                            // };
+                            // sqs.deleteMessage(params, function(err, data) {
+                            //     if (err) console.log(err, err.stack);
+                            //     else {
+                            //         console.log('Messages Deleted from Queue in trend worker ELB')
+                            //     }
+                            // });
+                            // counter++;
+                            // if (counter == data.length) {
+                            //     receiveMessage();
+                            //     //console.log('CALLING AGAIN');
+                            // }
                         });
                     } else {
                         receiveMessage();
