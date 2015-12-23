@@ -9,6 +9,8 @@ var app        = express();                 // define our app using express
 var bodyParser = require('body-parser');
 
 
+var http = require('http');
+var sd = require('./student_dynamo.js');
 
 
 // configure app to use bodyParser()
@@ -52,28 +54,57 @@ router.get('/', function(req, res) {
 //API endpoint to add student to the students table
 
 
+router.route('/')
+  .get(function(req, res) {
+    res.send({'status': "All systems go!"});
+  })
+  .post(function(req, res) {
+    sd.createTable(function(response) {
+      res.send({message: response});
+    });
+  });
+
 
 //API end point to get student details (accessed at GET http://localhost:16386/api/student/id)
-router.route('/student/:student_id')
+router.route('/student/:ssn')
 
 // get the student with that id (accessed at GET http://localhost:16386/api/student/:student_id)
 .get(function(req, res) {
+    var ssn = parseInt(req.params.ssn);
+    console.log(ssn);
 
-  console.log("Inside Get request");
-  res.json("Here are the student details")
-  // Logic to show student here
-  // student.getStudentDetails(req,res,handleResult);
-  // function handleResult(response, err)
-  // {
-  //   if(err)
-  //   {
-  //     console.error(err.stack || err.message);
-  //     return;
-  //   }
-  //   res.json(response.body);
-  //   console.log("Request handled");
-  // }
+    sd.getStudentForSsn(ssn, function(err,data) {
+
+      if (!err) {
+        var result = data.Items[0];
+        console.log(result);
+        res.send(result);
+      }
+      else {
+        console.log(err);
+      }
+    });
 });
+
+router.route('/student')
+
+
+.post(function(req,res) {
+
+  var ssn = parseInt(req.body.ssn);
+  var fname = req.body.fname;
+  var lname = req.body.lname;
+  var school = req.body.school;
+
+  sd.addStudent(ssn, fname, lname, school, function(err,response) {
+
+      if (!err) {
+        res.json({message: "New student added"})
+    }
+  });
+
+});
+
 
 
 // REGISTER OUR ROUTES -------------------------------

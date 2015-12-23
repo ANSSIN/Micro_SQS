@@ -1,0 +1,15 @@
+{
+  "name": "microservice_project",
+  "main": "gateway.js",
+  "dependencies": {
+    "async": "*",
+    "aws-sdk": "*",
+    "body-parser": "~1.0.1",
+    "express": "~4.0.0",
+    "http": "*",
+    "mongoose": "~3.6.13",
+    "request": "*",
+    "sqs-consumer": "^3.0.0",
+    "url": "*"
+  }
+}
