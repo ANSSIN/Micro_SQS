@@ -1,15 +1,31 @@
 {
-  "name": "microservice_project",
-  "main": "gateway.js",
+  "name": "micro-services_sqs",
+  "version": "1.0.0",
+  "description": "Code for Micro services project 2, using SQS to call APIs",
+  "main": "student_router.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ANSSIN/Micro_SQS.git"
+  },
+  "author": "Gaurang Sadekar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ANSSIN/Micro_SQS/issues"
+  },
+  "homepage": "https://github.com/ANSSIN/Micro_SQS#readme",
   "dependencies": {
-    "async": "*",
-    "aws-sdk": "*",
-    "body-parser": "~1.0.1",
-    "express": "~4.0.0",
-    "http": "*",
-    "mongoose": "~3.6.13",
-    "request": "*",
+    "async": "^1.5.0",
+    "aws-sdk": "^2.2.22",
+    "body-parser": "^1.14.1",
+    "dynamo": "^0.2.14",
+    "dynamodb": "^0.3.6",
+    "express": "^4.13.3",
+    "http": "0.0.0",
+    "request": "^2.67.0",
     "sqs-consumer": "^3.0.0",
-    "url": "*"
+    "url": "^0.11.0"
   }
 }

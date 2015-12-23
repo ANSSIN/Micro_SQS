@@ -49,10 +49,14 @@ exports.sendMessage = function(message, callback) {
                 			};
                 sqs.sendMessage(params, function(err, data) {
                     if (err) console.log(err, err.stack);
-                    else console.log('Message pushed to Queue from SQS file');
+                    else {
+                      console.log('Message pushed to Queue from SQS file');
+                      message = "Response handled"
+                      callback(message);
+                    }
                 });
         }
-        callback();
+
     });
 }
 
@@ -92,12 +96,13 @@ var receiveMessage = exports.receiveMessage = function () { //callback) {
                                 QueueUrl: Q_Url,
                                 ReceiptHandle: d.ReceiptHandle
                             };
-                            sqs.deleteMessage(params, function(err, data) {
-                                if (err) console.log(err, err.stack);
-                                else {
-                                    console.log('Messages Deleted from Queue in trend worker ELB')
-                                }
-                            });
+                            // sqs.deleteMessage(params, function(err, data) {
+                            //     // if (err) console.log(err);
+                            //     // else {
+                            //     if (!err) {
+                            //         console.log('Messages Deleted from Queue');
+                            //     }
+                            // });
 
                             counter++;
                             if (counter == data.length) {

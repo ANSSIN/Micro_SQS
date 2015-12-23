@@ -37,10 +37,6 @@ dynamo.createTable(params, function(err, data) {
 };
 
 exports.addStudent = function(ssn, fName, lName, school, callback) {
-// var ssn = 123;
-// var fName = "Gaurang";
-// var lName = "Sadekar";
-// var school = "JNS";
   var params = {
     TableName: tableName,
     Item: {
@@ -48,7 +44,8 @@ exports.addStudent = function(ssn, fName, lName, school, callback) {
             "fname": fName,
             "lname": lName,
             "school": school
-          }
+          },
+    Expected : { "ssn": {"Exists": false}}
   };
   console.log("Adding new Student");
   dynamoDoc.put(params, function(err, data) {
@@ -64,16 +61,6 @@ exports.addStudent = function(ssn, fName, lName, school, callback) {
 };
 
 exports.getStudentForSsn = function(ssn, callback) {
-  // ddb.get(tableName)
-  //    .query({ssn: ssn})
-  //    .fetch(function(err, data) {
-  //      if (err) {
-  //        console.log(JSON.stringify(err, null, 2));
-  //      }
-  //      else {
-  //        callback(data);
-  //      }
-  //    })
   var params = {
     TableName: tableName,
     KeyConditionExpression: "ssn = :ssn",
@@ -85,7 +72,62 @@ exports.getStudentForSsn = function(ssn, callback) {
     }
     else {
       console.log("Query Succeeded");
-      callback(undefined,data);
+      callback(data);
     }
   })
+};
+
+exports.updateStudent = function (ssn, updateFields, callback) {
+  var exprAttrJSON = {};
+  var updateString = "set";
+  if (updateFields.fname !== undefined) {
+    exprAttrJSON[":f"] = updateFields.fname;
+    updateString += " fname = :f,"
+  }
+  if (updateFields.lname !== undefined) {
+    exprAttrJSON[":l"] = updateFields.lname;
+    updateString += " lname = :l,"
+  }
+  if (updateFields.school !== undefined) {
+    exprAttrJSON[":s"] = updateFields.school;
+    updateString += " school = :s,";
+  }
+  updateString = updateString.substring(0, updateString.length - 1);
+
+  var params = {
+    TableName: tableName,
+    Key: {
+      "ssn": ssn
+    },
+    UpdateExpression: updateString,
+    ExpressionAttributeValues: exprAttrJSON,
+    ReturnValues:"UPDATED_NEW"
+  };
+  dynamoDoc.update(params, function(err, data) {
+    if (err) {
+      console.log("There was an error", JSON.stringify(err, null, 2));
+      callback(err, undefined);
+    }
+    else {
+      console.log("Updated Item", JSON.stringify(data, null, 2));
+      callback(undefined, data);
+    }
+  });
+};
+
+exports.deleteStudent = function(ssn, callback) {
+  var params = {
+    TableName: tableName,
+    Key: { "ssn": ssn }
+  };
+  dynamoDoc.delete(params, function(err, data) {
+    if (err) {
+      console.log("Could not delete student", JSON.stringify(err, null, 2));
+      callback(err, undefined);
+    }
+    else {
+      console.log("Deleted student");
+      callback(undefined, data);
+    }
+  });
 };

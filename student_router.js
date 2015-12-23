@@ -12,9 +12,10 @@ AWS.config.apiVersions = {
 AWS.config.update({accessKeyId: '', secretAccessKey: '',region: 'us-east-1'});
 
 var sqs = new AWS.SQS({region:'us-east-1'});
+console.log("Student Router is running");
 
 var app = Consumer.create({
-  queueUrl: 'https://sqs.us-east-1.amazonaws.com/306587932798/RequestProcessor',
+  queueUrl: 'https://sqs.us-east-1.amazonaws.com/455518163747/RequestProcessor',
   messageAttributeNames : ['ResponseQueue','CorrelationId','Operation'],
   handleMessage: function (message, done) {
 

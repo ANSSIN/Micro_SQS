@@ -44,16 +44,42 @@ router.route('/student/:ssn')
     });
   })
 
+  .put(function(req, res) {
+    var ssn = parseInt(req.params.ssn);
+    updateFields = req.body;
+    sd.updateStudent(ssn, updateFields, function(err,data) {
+      if (!err) {
+        res.json({message: "Updated Student Details"});
+      }
+      else {
+        console.log(JSON.stringify(err, null, 2));
+        res.send({error: err});
+      }
+    });
+  })
+
+  .delete(function(req, res) {
+    var ssn = parseInt(req.params.ssn);
+    console.log(ssn);
+    sd.deleteStudent(ssn, function (err, data) {
+      if (!err) {
+        res.json({message: "Student Deleted"});
+      }
+      else {
+        res.json({message: "Student could not be deleted"});
+      }
+    });
+  })
+
 router.route('/student')
   .post(function(req,res) {
-    
     var ssn = parseInt(req.body.ssn);
     var fname = req.body.fname;
     var lname = req.body.lname;
     var school = req.body.school;
     sd.addStudent(ssn, fname, lname, school, function(err,response) {
-        if (!err) {
-          res.json({message: "New student added"})
+      if (!err) {
+        res.json({message: "New student added"})
       }
     });
   })
